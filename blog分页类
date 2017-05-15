@@ -1,0 +1,197 @@
+class Page{
+    public $start = 0; //用于查询语句，表示查询中limit的起始位置
+    public $length = 10; //用户查询语句，表示查询中limit的长度
+    public $p = 1;//表示当前的页码
+    public $count; //表示总记录数
+    public $num = 5; //表示中间 1 2 3 4 5 页
+    public $config = array(
+        'prev' => '上一页',
+        'next' => '下一页',
+        'current_tag' => 'span', //当前页的标签
+        'theme' => 'first,prev,link,next,last,form', //默认的主题
+    );
+
+    //构造方法，用于计算获取分页类中所用到的变量
+    public function __construct($count, $pageSize = 10)
+    {
+        $this->length = $pageSize; //用户定义的没页显示多少条，赋值给当前类中length属性
+        $this->p = isset($_GET['p']) ? $_GET['p'] : 1; //获取地址栏的p参数，赋值给当前的页码
+        $this->start = ($this->p-1)*$this->length;
+        //echo $count;
+        $this->count = $count;
+    }
+
+    //制作分页样式
+    public function show(){
+        //$a = 'a';
+        //echo "hello$a"; //helloa
+        //echo "$ahello"; //程序不会识别$a是变量还是$ah是变量....
+        //echo "{$a}hello"; //ahello
+        //上一页
+
+//        echo '<pre>';
+//        print_r($_GET);
+        /*
+         * Array
+            (
+                [c] => Article
+                [a] => artList
+                [id] => 2
+                [parent_id] => 0
+                [p] => 3
+            )
+         */
+        //获取地址栏的参数
+        $params = $_GET;
+        //判断一下原理的地址栏有没有p参数
+        if(array_key_exists('p', $params)){
+            //删除p这个单元，然后组合其他参数
+            unset($params['p']);
+        }
+        //组合除了p以外的其他参数
+        $newParams = '';
+        $fstr = ''; //存放表单隐藏域
+        foreach ($params as $key=>$val){
+            $newParams .= $key.'='.$val.'&';  //c=Article&
+            $fstr .= "<input type='hidden' name='$key' value='$val' />";
+        }
+        //计算最大页码
+        $maxPage = ceil($this->count / $this->length);
+        //echo $maxPage;
+        //echo $newParams; //c=Article&a=artList&id=2&parent_id=0&
+
+
+
+        $first = '';
+        $prev = '';
+        if($this->p > 1){
+            //首页
+            $first = "<a href='?{$newParams}p=1'><<</a>";
+            //上一页
+            $prev = "<a href='?{$newParams}p=".($this->p-1)."'>{$this->config['prev']}</a>";
+        }
+
+        //开发1 2 3 4 5
+        /*
+         * 1
+         * 1 2 3 4 5
+         * 2
+         * 1 2 3 4 5
+         *
+         * 3
+         * 1 2 3 4 5
+         * 4
+         * 2 3 4 5 6
+         * ...
+         * 10
+         * 8 9 10 11 12
+         * 11
+         * 9 10 11 12 13
+         *
+         * 12
+         * 9 10 11 12 13
+         * 13
+         * 9 10 11 12 13
+         */
+        $s = $this->p - floor($this->num / 2); //默认的循环起始值
+        $e = $this->p + ceil($this->num / 2) - 1; //默认的循环最大值
+        //页码比较小的情况
+        if($this->p <= floor($this->num / 2)){
+            $s = 1;
+            $e = $this->num;
+        }
+        //页码比较大的情况
+        if($this->p >= $maxPage - ceil($this->num / 2)){
+            $s = $maxPage - $this->num + 1;
+            $e = $maxPage;
+        }
+        //如果页码不足5页
+        if($maxPage < $this->num){
+            $s = 1;
+            $e = $maxPage;
+        }
+        $link = '';
+        for($i=$s; $i<=$e; $i++){
+            if($i == $this->p){
+                $link .= "<{$this->config['current_tag']}>$i</{$this->config['current_tag']}>";
+            }else{
+                $link .= "<a href='?{$newParams}p=$i'>$i</a>";
+            }
+        }
+
+        $next = '';
+        $last = '';
+        if($this->p < $maxPage){
+            //下一页
+            $next = "<a href='?{$newParams}p=".($this->p+1)."'>{$this->config['next']}</a>";
+            //尾页
+            $last = "<a href='?{$newParams}p=$maxPage'>>></a>";
+        }
+
+        $form = <<<sdf
+<form>
+
+$fstr
+
+<input type='text' name='p' size='4' />
+<input type='submit' value='GO' />
+</form>
+sdf;
+//sdf结尾的定界符必须顶格写，而且定界符结尾这行不能有其他代码
+
+
+
+        //$str = $first . $prev . $link . $next . $last . $formStr;
+        $str = '';
+        $arr = explode(',',$this->config['theme']);
+        /*
+         * array(
+         * 0 => first,
+         * 1 => prev,
+         * 2 => link,
+         * 3 => ..
+         * )
+         */
+        foreach($arr as $val){
+            $str .= $$val;
+        }
+        return $str;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
