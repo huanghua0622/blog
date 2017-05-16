@@ -1,0 +1,14 @@
+class db
+{
+private static $index = null;
+private __construct(){}
+private __clone(){}
+static function getObj()
+  {
+  if(!isset(self::$index)){
+      self::$index = new self;
+    }
+    return $index;
+  }
+}
+$obj = db::getObj();
