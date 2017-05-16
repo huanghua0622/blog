@@ -1,0 +1,146 @@
+<?php
+class Upload{
+    private $info; //存放上传文件的信息
+    private $error = ''; //存放错误信息
+    public $size = 5; //允许上传的文件的最大值，单位M
+    public $ext = array('jpg', 'jpeg', 'png', 'gif'); //允许的文件后缀
+    public $rootPath = './Public/Uploads/'; //后面的 / 一定要有
+
+    //构造方法,获取上传文件的信息，存放到当前类中的info属性中
+    public function __construct()
+    {
+//        echo '<pre>';
+//        print_r($_FILES);
+//        $arr = array_values($_FILES);
+
+        $arr = array_values($_FILES); //只获取数组的值，不关心下标
+        $this->info = $arr[0];
+        //print_r($arr[0]);
+        /*
+         * Array
+            (
+                [name] => chuanzhi.jpg
+                [type] => image/jpeg
+                [tmp_name] => C:\Windows\Temp\phpEA8E.tmp
+                [error] => 0
+                [size] => 12850
+            )
+         */
+    }
+
+
+    //执行上传的方法
+    public function upload(){
+        //先检查错误，检查文件大小
+        if(!$this->getError() || !$this->checkSize() || !$this->checkExt()){
+            exit($this->error);
+        }
+
+        //如果上面的各项检查都没问题，那么下面进行上传处理
+        //设置新的文件名，要求不同名,保持原有后缀即可
+        $newFileName = time() . mt_rand(000, 999) . '.' . $this->getExt(); //设置新的文件名
+        //设置上传路径，由一个根目录和一个子目录共同组成，
+        //根目录一般情况为./Public/Uploads
+        //子目录一般为当天的时间，如2017-02-10
+        //组合这个目录
+        $filePath = $this->rootPath . date('Y-m-d'); // ./Public/Uploads/2017-02-10
+        //如果目录不存在就创建之
+        if(!file_exists($filePath)){
+            mkdir($filePath, 0777, true);
+        }
+        //上面代码执行完毕，新的文件名和存放路径的问题都已经解决类，下面开始上传
+        //上传成功返回新的上传路径和文件名，上传失败，提示错误并终止程序继续执行
+        if(move_uploaded_file($this->info['tmp_name'], $filePath . '/' . $newFileName)){
+            return $filePath . '/' . $newFileName;
+        }else{
+            exit('上传失败');
+        }
+    }
+
+    //检查文件的后缀(扩展名)
+    public function checkExt(){
+        $ext = $this->getExt();
+        $ext = strtolower($ext); //转化后缀为小写在判断
+        if(!in_array($ext, $this->ext)){
+            //记录错误
+            $this->error = '不允许的后缀';
+            return false;
+        }
+        return true;
+    }
+
+    //获取上传文件的后缀
+    public function getExt(){
+        $ext = strrchr($this->info['name'], '.'); // .jpg
+        $ext = ltrim($ext, '.'); // jpg
+        //trim($str, 's');  // sabscd  --> abscd
+        return $ext;
+    }
+
+    //检查文件大小
+    private function checkSize(){
+        if($this->info['size'] > $this->size * 1024 * 1024){
+            //超出范围
+            $this->error = '上传文件太大类，最大允许' . $this->size . 'M';
+            return false;
+        }
+        return true;
+    }
+
+    //处理错误信息
+    private function getError(){
+        $err = array(
+            1 => '上传的文件超过了 php.ini 中 upload_max_filesize 选项限制的值',
+            2 => '上传文件的大小超过了 HTML 表单中 MAX_FILE_SIZE 选项指定的值',
+            3 => '文件只有部分被上传',
+            4 => '没有文件被上传',
+            6 => '找不到临时文件夹',
+            7 => '文件写入失败',
+        );
+        if(array_key_exists($this->info['error'], $err)){
+            //记录错误
+            $this->error = $err[$this->info['error']];
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
