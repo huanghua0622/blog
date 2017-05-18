@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		ul{
+			border: 1px solid #ccc;
+			width: 120px;
+			margin: 0;
+			padding: 0;
+			display: none;
+		}
+		ul li{
+			border-bottom: 1px solid #ccc;
+			list-style-position: inside;
+			list-style-type: none;
+			text-align: center;
+			height: 30px;
+		}
+			ul li:hover {
+				background : #ccc;
+			}
+			
+			ul li:hover a {
+				color : #fff;
+			}
+			ul li:last-child {
+				border: 0;
+			}
+			
+			ul li a{
+				text-decoration: none;
+				font:14px/30px Arial,宋体;
+				letter-spacing: 5px;
+			}
+	</style>
+</head>
+<body>
+	<ul id="menu">
+		<li><a href="">复制</a></li>
+		<li><a href="">粘贴</a></li>
+		<li><a href="">全选</a></li>
+		<li><a href="">反选</a></li>
+	</ul>
+	<script type="text/javascript">
+		document.oncontextmenu = function(event)
+		{
+			document.getElementById('menu').style.display = "block";
+			var event = window.event || event;
+			document.getElementById('menu').style.position = "absolute";
+			document.getElementById('menu').style.left = event.clientX+"px";
+			document.getElementById('menu').style.top = event.clientY+"px";
+			return false;
+		}
+	</script>
+</body>
+</html>
