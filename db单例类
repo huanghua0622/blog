@@ -1,0 +1,64 @@
+<?php
+//连接数据库---单例模式
+
+//提供基本的增删改查方法
+//
+class Db{
+	private static $ins = null; //为了存储Db类的对象
+	private $pdo; //存储PDO对象的属性
+
+	//私有的构造方法，为了不让我们在类外部new
+	private function __construct(){
+		$this->conn();
+	}
+
+	//魔术方法
+	public function __get($name){
+		if(isset($this->$name)){
+			return $this->$name;
+		}
+		return null;
+	}
+
+	//私有的克隆方法
+	private function __clone(){}
+
+	//公共的提供Db类的对象的静态方法
+	public static function getIns(){
+		if(self::$ins == null){
+			self::$ins = new self;
+		}
+		return self::$ins;
+	}
+
+
+	/************* 连接数据库 -- PDO的方式 ***************/
+	private function conn(){
+		try{
+			$dsn = 'mysql:host='.$GLOBALS['conf']['DB_HOST'].'; dbname='.$GLOBALS['conf']['DB_NAME'].'; charset='.$GLOBALS['conf']['DB_CHARSET'];
+			$this->pdo = new PDO($dsn, $GLOBALS['conf']['DB_USER'], $GLOBALS['conf']['DB_PWD'], array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+		}catch(PDOException $e){
+			echo $e->getMessage();
+			exit();
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+?>
